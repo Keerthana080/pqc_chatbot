@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>PQC Secure Chat</title>
+    <style>
+        body { font-family: sans-serif; max-width: 640px; margin: 40px auto; }
+        #history { border: 1px solid #ccc; border-radius: 8px; padding: 12px;
+                   height: 400px; overflow-y: auto; margin-bottom: 12px; }
+        .msg { margin: 8px 0; padding: 8px 12px; border-radius: 10px; max-width: 80%; }
+        .user { background: #d8ecff; margin-left: auto; text-align: right; }
+        .ai { background: #eee; }
+        form { display: flex; gap: 8px; }
+        input[type=text] { flex: 1; padding: 8px; }
+    </style>
+</head>
+<body>
+    <h2>🔐 PQC Secure Chat</h2>
+    <p style="color:#666; font-size: 0.9em;">
+        Every message below is encrypted with a Kyber-derived AES key before it's
+        ever written to the database. This page only shows plaintext because you're
+        authenticated and the decryption happens server-side, right before render.
+    </p>
+
+    <div id="history">
+        {% for msg in history %}
+            <div class="msg {% if msg.is_ai_response %}ai{% else %}user{% endif %}">
+                {{ msg.text }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <form id="chat-form">
+        {% csrf_token %}
+        <input type="text" id="message" name="message" placeholder="Type a message..." autocomplete="off" required>
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        const form = document.getElementById('chat-form');
+        const history = document.getElementById('history');
+        const input = document.getElementById('message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+
+            // Optimistically show the user's own message
+            history.insertAdjacentHTML('beforeend', `<div class="msg user">${text}</div>`);
+            history.scrollTop = history.scrollHeight;
+
+            const formData = new FormData();
+            formData.append('message', text);
+            formData.append('csrfmiddlewaretoken', form.csrfmiddlewaretoken.value);
+
+            const res = await fetch("{% url 'chat:send_message' %}", {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await res.json();
+
+            if (data.ai_message) {
+                history.insertAdjacentHTML('beforeend', `<div class="msg ai">${data.ai_message}</div>`);
+            } else {
+                history.insertAdjacentHTML('beforeend', `<div class="msg ai">⚠️ ${data.error || 'Something went wrong.'}</div>`);
+            }
+            history.scrollTop = history.scrollHeight;
+        });
+    </script>
+</body>
+</html>
