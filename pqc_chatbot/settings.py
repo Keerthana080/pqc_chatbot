@@ -131,7 +131,9 @@ STATIC_URL = 'static/'
 # Where Django sends anonymous users who hit @login_required views.
 # Using the built-in admin login for now since there's no custom
 # login view yet -- swap this out once one exists.
-LOGIN_URL = '/admin/login/'
+
+LOGIN_URL = '/chat/login/'
+LOGIN_REDIRECT_URL = '/chat/'
 
 # Read from the environment -- never hardcode a real key here.
 # Get one at https://aistudio.google.com/apikey

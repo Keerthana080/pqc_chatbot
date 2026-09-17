@@ -62,7 +62,7 @@ def get_ai_reply(conversation_history, new_message):
     contents.append(types.Content(role="user", parts=[types.Part(text=new_message)]))
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.6-flash",
         contents=contents,
     )
     return response.text

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Sign Up — PQC Secure Chat</title>
+    <style>
+        body { font-family: sans-serif; max-width: 400px; margin: 80px auto; }
+        input { display: block; width: 100%; padding: 8px; margin-bottom: 12px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; }
+        .errorlist { color: #c00; font-size: 0.85em; margin: -8px 0 8px; padding-left: 0; list-style: none; }
+        .note { color: #666; font-size: 0.85em; margin-top: 16px; }
+    </style>
+</head>
+<body>
+    <h2>🔐 Create your account</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Sign Up</button>
+    </form>
+    <p class="note">
+        A quantum-resistant Kyber keypair is generated automatically for
+        your account when you sign up.
+    </p>
+    <p><a href="{% url 'chat:login' %}">Already have an account? Log in</a></p>
+</body>
+</html>

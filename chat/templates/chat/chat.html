@@ -3,30 +3,41 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>PQC Secure Chat</title>
+    <title>Chat with {{ other_username }} — PQC Secure Chat</title>
     <style>
         body { font-family: sans-serif; max-width: 640px; margin: 40px auto; }
         #history { border: 1px solid #ccc; border-radius: 8px; padding: 12px;
                    height: 400px; overflow-y: auto; margin-bottom: 12px; }
         .msg { margin: 8px 0; padding: 8px 12px; border-radius: 10px; max-width: 80%; }
-        .user { background: #d8ecff; margin-left: auto; text-align: right; }
-        .ai { background: #eee; }
+        .own { background: #d8ecff; margin-left: auto; text-align: right; }
+        .other { background: #eee; }
         form { display: flex; gap: 8px; }
         input[type=text] { flex: 1; padding: 8px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; }
+        .badge { font-size: 0.75em; margin-left: 6px; }
+        .badge.ok { color: #2a8f2a; }
+        .badge.bad { color: #c00; }
     </style>
 </head>
 <body>
-    <h2>🔐 PQC Secure Chat</h2>
+    <div class="top-bar">
+        <h2>🔐 Chat with {{ other_username }}</h2>
+        <a href="{% url 'chat:inbox' %}">&larr; Back to chats</a>
+    </div>
     <p style="color:#666; font-size: 0.9em;">
-        Every message below is encrypted with a Kyber-derived AES key before it's
-        ever written to the database. This page only shows plaintext because you're
-        authenticated and the decryption happens server-side, right before render.
+        Every message below is encrypted with a Kyber-derived AES key and signed
+        with Dilithium before it's ever written to the database.
     </p>
 
     <div id="history">
         {% for msg in history %}
-            <div class="msg {% if msg.is_ai_response %}ai{% else %}user{% endif %}">
+            <div class="msg {% if msg.is_own_message %}own{% else %}other{% endif %}">
                 {{ msg.text }}
+                {% if msg.signature_valid %}
+                    <span class="badge ok" title="Dilithium signature verified">✔ signed</span>
+                {% else %}
+                    <span class="badge bad" title="No valid signature">⚠ unsigned</span>
+                {% endif %}
             </div>
         {% endfor %}
     </div>
@@ -41,6 +52,7 @@
         const form = document.getElementById('chat-form');
         const history = document.getElementById('history');
         const input = document.getElementById('message');
+        const isAi = {{ is_ai|yesno:"true,false" }};
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -48,24 +60,28 @@
             if (!text) return;
             input.value = '';
 
-            // Optimistically show the user's own message
-            history.insertAdjacentHTML('beforeend', `<div class="msg user">${text}</div>`);
+            history.insertAdjacentHTML('beforeend',
+                `<div class="msg own">${text} <span class="badge ok">✔ signed</span></div>`);
             history.scrollTop = history.scrollHeight;
 
             const formData = new FormData();
             formData.append('message', text);
             formData.append('csrfmiddlewaretoken', form.csrfmiddlewaretoken.value);
 
-            const res = await fetch("{% url 'chat:send_message' %}", {
+            const res = await fetch("{% url 'chat:send' username=other_username %}", {
                 method: 'POST',
                 body: formData,
             });
             const data = await res.json();
 
-            if (data.ai_message) {
-                history.insertAdjacentHTML('beforeend', `<div class="msg ai">${data.ai_message}</div>`);
-            } else {
-                history.insertAdjacentHTML('beforeend', `<div class="msg ai">⚠️ ${data.error || 'Something went wrong.'}</div>`);
+            if (isAi) {
+                if (data.ai_message) {
+                    history.insertAdjacentHTML('beforeend',
+                        `<div class="msg other">${data.ai_message} <span class="badge ok">✔ signed</span></div>`);
+                } else {
+                    history.insertAdjacentHTML('beforeend',
+                        `<div class="msg other">⚠️ ${data.error || 'Something went wrong.'}</div>`);
+                }
             }
             history.scrollTop = history.scrollHeight;
         });
