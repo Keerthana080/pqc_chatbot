@@ -148,6 +148,11 @@ def room_chat_view(request, username):
             "is_own_message": msg.sender_id == request.user.id,
             "timestamp": msg.timestamp,
             "signature_valid": signature_valid,
+            # NEW: raw data exactly as stored in the database, for the
+            # "View encrypted" toggle -- this is literally what an
+            # attacker with DB access would see instead of the message.
+            "encrypted_content": msg.encrypted_content,
+            "signature": msg.signature or "",
         })
 
     return render(request, "chat/chat.html", {
@@ -194,7 +199,13 @@ def send_to_room(request, username):
     )
 
     if username != AI_BOT_USERNAME:
-        return JsonResponse({"user_message": user_text})
+        # Return the encrypted form too, so the frontend can show the
+        # "View encrypted" toggle on the message we just optimistically rendered.
+        return JsonResponse({
+            "user_message": user_text,
+            "user_message_encrypted": encrypted_user_msg,
+            "user_message_signature": user_signature,
+        })
 
     conversation_history = []
     for msg in room.messages.all():
@@ -227,5 +238,9 @@ def send_to_room(request, username):
 
     return JsonResponse({
         "user_message": user_text,
+        "user_message_encrypted": encrypted_user_msg,
+        "user_message_signature": user_signature,
         "ai_message": ai_text,
+        "ai_message_encrypted": encrypted_ai_msg,
+        "ai_message_signature": ai_signature,
     })

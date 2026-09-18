@@ -1,22 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Log In — PQC Secure Chat</title>
-    <style>
-        body { font-family: sans-serif; max-width: 400px; margin: 80px auto; }
-        input { display: block; width: 100%; padding: 8px; margin-bottom: 12px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; }
-        .errorlist { color: #c00; font-size: 0.85em; margin: -8px 0 8px; padding-left: 0; list-style: none; }
-    </style>
-</head>
-<body>
-    <h2>🔐 Log in</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Log In</button>
-    </form>
-    <p><a href="{% url 'chat:signup' %}">Need an account? Sign up</a></p>
-</body>
-</html>
+{% extends "chat/base.html" %}
+{% block title %}Log in — SecureLine{% endblock %}
+{% block content %}
+<div class="brand" style="margin-bottom:36px;">
+  <div class="mark">&#128274;</div>
+  <h1>SecureLine</h1>
+</div>
+
+<div class="card" style="padding:32px; max-width:400px;">
+  <h2 style="font-size:20px; margin-bottom:20px;">Log in</h2>
+  {% if form.non_field_errors %}
+    <ul class="errorlist">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="field">
+      <label for="id_username">Username</label>
+      {{ form.username }}
+    </div>
+    <div class="field">
+      <label for="id_password">Password</label>
+      {{ form.password }}
+    </div>
+    <button type="submit" class="btn" style="width:100%;">Log in</button>
+  </form>
+  <p style="margin-top:18px; font-size:14px; color:var(--ink-soft);">
+    Need an account? <a href="{% url 'chat:signup' %}">Sign up</a>
+  </p>
+</div>
+{% endblock %}

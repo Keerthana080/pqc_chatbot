@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}SecureLine{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F5F0;
+    --surface:#FFFFFF;
+    --ink:#1B2340;
+    --ink-soft:#4A5178;
+    --brass:#A6741A;
+    --brass-soft:#F3E8D3;
+    --brick:#A23B3B;
+    --brick-soft:#F5E4E0;
+    --line:#DEDACD;
+    --line-strong:#C9C4B2;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Newsreader', serif;
+    font-weight:600;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .wrap{ max-width:640px; margin:0 auto; padding:32px 20px 60px; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand .mark{
+    width:30px; height:30px; border-radius:7px;
+    background:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--brass-soft); font-size:15px; flex:none;
+  }
+  .brand h1{ font-size:22px; }
+  a{ color:var(--ink); }
+  .link-btn{
+    background:none; border:none; color:var(--ink-soft);
+    text-decoration:underline; cursor:pointer; padding:0;
+    font:inherit; font-size:14px;
+  }
+  .link-btn:hover{ color:var(--ink); }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+  }
+  .field{ margin-bottom:16px; }
+  .field label{
+    display:block; font-size:13px; color:var(--ink-soft); margin-bottom:6px;
+  }
+  .field input[type=text],
+  .field input[type=password]{
+    width:100%; padding:11px 12px; border:1px solid var(--line-strong);
+    border-radius:8px; font:inherit; font-size:15px; background:var(--surface);
+    color:var(--ink);
+  }
+  .field input:focus{ outline:2px solid var(--brass); outline-offset:1px; }
+  .btn{
+    display:inline-block; padding:11px 20px; border-radius:8px;
+    border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+    font:inherit; font-size:15px; font-weight:500; cursor:pointer;
+  }
+  .btn:hover{ background:#2A335C; }
+  .btn-ghost{
+    background:var(--brass-soft); border:1px solid #E4CFA0; color:#7A551A;
+  }
+  .btn-ghost:hover{ background:#EFDFB8; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  .flash{
+    background:#EAF1EA; border:1px solid #BFD8BF; border-radius:8px;
+    padding:12px 14px; margin-bottom:18px; font-size:14px; color:#33553B;
+  }
+  ul.errorlist{ list-style:none; padding:0; margin:0 0 8px; color:var(--brick); font-size:13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>
